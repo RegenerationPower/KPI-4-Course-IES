@@ -1,7 +1,7 @@
 CREATE TABLE processed_agent_data (
     id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
     road_state VARCHAR(255) NOT NULL,
-    user_id INTEGER NOT NULL,
     x FLOAT,
     y FLOAT,
     z FLOAT,

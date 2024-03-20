@@ -4,4 +4,6 @@
 /hub/venv/
 /store/.idea/
 /store/venv/
+/edge/.idea/
+/edge/venv/
 /.idea/

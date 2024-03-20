@@ -1,6 +1,5 @@
-from dataclasses import dataclass
 from domain.gps import Gps
-
+from dataclasses import dataclass
 
 @dataclass
 class Parking:

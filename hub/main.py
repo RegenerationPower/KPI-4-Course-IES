@@ -1,14 +1,11 @@
 import logging
 from typing import List
-import time
+
 from fastapi import FastAPI
 from redis import Redis
-import json
-from datetime import datetime
 import paho.mqtt.client as mqtt
 
 from app.adapters.store_api_adapter import StoreApiAdapter
-from app.entities.agent_data import AgentData, AccelerometerData, GpsData
 from app.entities.processed_agent_data import ProcessedAgentData
 from config import (
     STORE_API_BASE_URL,
@@ -49,6 +46,7 @@ async def save_processed_agent_data(processed_agent_data: ProcessedAgentData):
                 redis_client.lpop("processed_agent_data")
             )
             processed_agent_data_batch.append(processed_agent_data)
+        print(processed_agent_data_batch)
         store_adapter.save_data(processed_agent_data_batch=processed_agent_data_batch)
     return {"status": "ok"}
 
@@ -69,13 +67,14 @@ def on_message(client, userdata, msg):
     try:
         payload: str = msg.payload.decode("utf-8")
         # Create ProcessedAgentData instance with the received data
-        logging.info(f"mqtt message: {payload}")
         processed_agent_data = ProcessedAgentData.model_validate_json(
             payload, strict=True
         )
+
         redis_client.lpush(
             "processed_agent_data", processed_agent_data.model_dump_json()
         )
+
         if redis_client.llen("processed_agent_data") >= BATCH_SIZE:
             processed_agent_data_batch: List[ProcessedAgentData] = []
             for _ in range(BATCH_SIZE):
@@ -84,7 +83,6 @@ def on_message(client, userdata, msg):
                 )
                 processed_agent_data_batch.append(processed_agent_data)
             store_adapter.save_data(processed_agent_data_batch=processed_agent_data_batch)
-            logging.info(f"Saved {BATCH_SIZE} messages to db")
         return {"status": "ok"}
     except Exception as e:
         logging.info(f"Error processing MQTT message: {e}")

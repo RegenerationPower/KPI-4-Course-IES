@@ -13,9 +13,10 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./db/structure.sql:/docker-entrypoint-initdb.d/structure.sql
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       db_network:
+
 
   pgadmin:
     container_name: pgadmin4
@@ -30,6 +31,7 @@ services:
       - "5050:80"
     networks:
       db_network:
+
 
   store:
     container_name: store
@@ -48,8 +50,10 @@ services:
     networks:
       db_network:
 
+
 networks:
   db_network:
+
 
 volumes:
   postgres_data:
